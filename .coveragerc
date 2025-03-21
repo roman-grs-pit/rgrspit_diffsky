@@ -1,0 +1,7 @@
+[run]
+source= rgrspit_diffsky/
+
+omit =
+    rgrspit_diffsky/__init__.py
+    rgrspit_diffsky/_version.py
+    rgrspit_diffsky/tests/*.py
