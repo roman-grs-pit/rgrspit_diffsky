@@ -33,5 +33,4 @@ jobs:
 
       - name: lint
         shell: bash -l {0}
-        run: |
-          flake8 rgrspit_diffsky --config=pyproject.toml
+        run: flake8 rgrspit_diffsky --config=pyproject.toml
