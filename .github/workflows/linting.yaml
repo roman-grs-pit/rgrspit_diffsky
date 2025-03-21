@@ -29,9 +29,9 @@ jobs:
             --file=requirements.txt
           python -m pip install --no-deps -e .
           conda install -y -q \
-            flake8
+            flake8 \
+            flake8-pyproject
 
       - name: lint
         shell: bash -l {0}
-        run: |
-          flake8 rgrspit_diffsky
+        run: flake8 --config=pyproject.toml rgrspit_diffsky

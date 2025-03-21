@@ -1,5 +1,6 @@
 rgrspit_diffsky
 ============
+This repository uses the Diffsky model to make mocks for the Roman GRS PIT.
 
 Installation
 ------------
