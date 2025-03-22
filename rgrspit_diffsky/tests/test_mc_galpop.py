@@ -29,9 +29,21 @@ def test_mc_diffmah_params_cens():
     ran_key = jran.key(0)
     lgmp_min = 11.0
     n_halos = 2_500
-    host_halo_mass = np.logspace(lgmp_min, 15, n_halos)
+    mhalo_at_z_obs = np.logspace(lgmp_min, 15, n_halos)
     z_obs = 0.5
     mah_params = mc_galpop.mc_diffmah_params_cens(
-        ran_key, host_halo_mass, z_obs, DEFAULT_COSMOLOGY
+        ran_key, mhalo_at_z_obs, z_obs, DEFAULT_COSMOLOGY
+    )
+    assert np.all(np.isfinite(mah_params))
+
+
+def test_mc_diffmah_params_sats():
+    ran_key = jran.key(0)
+    lgmp_min = 11.0
+    n_halos = 2_500
+    mhalo_at_z_obs = np.logspace(lgmp_min, 15, n_halos)
+    z_obs = 0.5
+    mah_params = mc_galpop.mc_diffmah_params_sats(
+        ran_key, mhalo_at_z_obs, z_obs, DEFAULT_COSMOLOGY
     )
     assert np.all(np.isfinite(mah_params))
