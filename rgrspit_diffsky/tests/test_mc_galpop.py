@@ -1,6 +1,7 @@
 """ """
 
 import numpy as np
+from dsps.cosmology.defaults import DEFAULT_COSMOLOGY
 from jax import random as jran
 
 from .. import mc_galpop
@@ -22,3 +23,15 @@ def test_mc_subhalo_mass():
 
     subhalo_mhost = host_halo_mass[subs_host_halo_indx]
     assert np.all(subhalo_mhost >= subhalo_mass)
+
+
+def test_mc_diffmah_params_cens():
+    ran_key = jran.key(0)
+    lgmp_min = 11.0
+    n_halos = 2_500
+    host_halo_mass = np.logspace(lgmp_min, 15, n_halos)
+    z_obs = 0.5
+    mah_params = mc_galpop.mc_diffmah_params_cens(
+        ran_key, host_halo_mass, z_obs, DEFAULT_COSMOLOGY
+    )
+    assert np.all(np.isfinite(mah_params))
