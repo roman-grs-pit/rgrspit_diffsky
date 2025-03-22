@@ -17,6 +17,34 @@ mc_diffmah_params_cenpop = jjit(vmap(mc_diffmah_params_singlecen, in_axes=_POP))
 mc_diffmah_params_satpop = jjit(vmap(mc_diffmah_params_singlesat, in_axes=_POP))
 
 
+def mc_diffmah_params_halopop_synthetic_subs(
+    ran_key,
+    mhost_at_z_obs,
+    z_obs,
+    lgmp_min,
+    cosmo_params,
+    diffmahpop_params=DEFAULT_DIFFMAHPOP_PARAMS,
+):
+    mah_params_cens = mc_diffmah_params_cens(
+        ran_key,
+        mhost_at_z_obs,
+        z_obs,
+        cosmo_params,
+        diffmahpop_params=diffmahpop_params,
+    )
+    subs_mhalo_at_z_obs, subs_host_halo_indx = mc_subhalo_mass(
+        ran_key, mhost_at_z_obs, lgmp_min
+    )
+    mah_params_sats = mc_diffmah_params_sats(
+        ran_key,
+        subs_mhalo_at_z_obs,
+        z_obs,
+        cosmo_params,
+        diffmahpop_params=diffmahpop_params,
+    )
+    return mah_params_cens, mah_params_sats, subs_host_halo_indx, subs_mhalo_at_z_obs
+
+
 def mc_subhalo_mass(ran_key, host_halo_mass, lgmp_min):
     subhalo_info = generate_subhalopop(ran_key, host_halo_mass, lgmp_min)
     subs_lgmu, subs_lgmhost, subs_host_halo_indx = subhalo_info

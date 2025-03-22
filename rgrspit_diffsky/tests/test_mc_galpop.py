@@ -47,3 +47,19 @@ def test_mc_diffmah_params_sats():
         ran_key, mhalo_at_z_obs, z_obs, DEFAULT_COSMOLOGY
     )
     assert np.all(np.isfinite(mah_params))
+
+
+def test_mc_diffmah_params_halopop_synthetic_subs():
+    ran_key = jran.key(0)
+    lgmp_min = 11.0
+    n_halos = 2_500
+    mhost_at_z_obs = np.logspace(lgmp_min, 15, n_halos)
+    z_obs = 0.5
+    _res = mc_galpop.mc_diffmah_params_halopop_synthetic_subs(
+        ran_key, mhost_at_z_obs, z_obs, lgmp_min, DEFAULT_COSMOLOGY
+    )
+    mah_params_cens, mah_params_sats, subs_host_halo_indx, subs_mhalo_at_z_obs = _res
+    assert np.all(np.isfinite(mah_params_cens))
+    assert np.all(np.isfinite(mah_params_sats))
+    assert np.all(np.isfinite(subs_host_halo_indx))
+    assert np.all(np.isfinite(subs_mhalo_at_z_obs))
