@@ -12,9 +12,34 @@ from jax import numpy as jnp
 from jax import random as jran
 from jax import vmap
 
+from .fake_sats.ellipsoidal_nfw_phase_space import mc_ellipsoidal_nfw
+
 _POP = (None, 0, None, 0, None)
 mc_diffmah_params_cenpop = jjit(vmap(mc_diffmah_params_singlecen, in_axes=_POP))
 mc_diffmah_params_satpop = jjit(vmap(mc_diffmah_params_singlesat, in_axes=_POP))
+
+
+def mc_halopop_synthetic_subs_with_positions(
+    ran_key,
+    logmhost_at_z_obs,
+    z_obs,
+    lgmp_min,
+    cosmo_params,
+    diffmahpop_params=DEFAULT_DIFFMAHPOP_PARAMS,
+):
+    mah_key, rhalo_key = jran.split(ran_key, 2)
+    _res = mc_diffmah_params_halopop_synthetic_subs(
+        mah_key,
+        logmhost_at_z_obs,
+        z_obs,
+        lgmp_min,
+        cosmo_params,
+        diffmahpop_params=DEFAULT_DIFFMAHPOP_PARAMS,
+    )
+    mah_params_cens, mah_params_sats, subs_host_halo_indx, subs_logmh_at_z_obs = _res
+
+    raise NotImplementedError()
+    _res = mc_ellipsoidal_nfw(rhalo_key, rhalo, conc, sigma, major_axes, b_to_a, c_to_a)
 
 
 def mc_diffmah_params_halopop_synthetic_subs(
