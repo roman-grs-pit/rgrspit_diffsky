@@ -13,7 +13,7 @@ def test_mc_subhalo_mass():
     lgmp_min = 11.0
     n_halos = 500
     logmh_host = np.linspace(lgmp_min, 15, n_halos)
-    subhalo_logmh, subs_host_halo_indx = mc_galpop.mc_subhalo_mass(
+    subhalo_logmh, subs_host_halo_indx = mc_galpop._mc_subhalo_mass(
         ran_key, logmh_host, lgmp_min
     )
     assert np.all(np.isfinite(subhalo_logmh))
@@ -31,7 +31,7 @@ def test_mc_diffmah_params_cens():
     n_halos = 500
     logmh_host = np.linspace(lgmp_min, 15, n_halos)
     z_obs = 0.5
-    mah_params = mc_galpop.mc_diffmah_params_cens(
+    mah_params = mc_galpop._mc_diffmah_params_cens(
         ran_key, logmh_host, z_obs, DEFAULT_COSMOLOGY
     )
     assert np.all(np.isfinite(mah_params))
@@ -43,7 +43,7 @@ def test_mc_diffmah_params_sats():
     n_halos = 500
     logmh_host = np.linspace(lgmp_min, 15, n_halos)
     z_obs = 0.5
-    mah_params = mc_galpop.mc_diffmah_params_sats(
+    mah_params = mc_galpop._mc_diffmah_params_sats(
         ran_key, logmh_host, z_obs, DEFAULT_COSMOLOGY
     )
     assert np.all(np.isfinite(mah_params))
@@ -55,7 +55,7 @@ def test_mc_diffmah_params_halopop_synthetic_subs():
     n_halos = 500
     logmhost_at_z_obs = np.linspace(lgmp_min, 15, n_halos)
     z_obs = 0.5
-    _res = mc_galpop.mc_diffmah_params_halopop_synthetic_subs(
+    _res = mc_galpop._mc_diffmah_params_halopop_synthetic_subs(
         ran_key, logmhost_at_z_obs, z_obs, lgmp_min, DEFAULT_COSMOLOGY
     )
     mah_params_cens, mah_params_sats, subs_host_halo_indx, subs_mhalo_at_z_obs = _res

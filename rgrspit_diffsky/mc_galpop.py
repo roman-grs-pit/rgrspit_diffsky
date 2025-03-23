@@ -42,7 +42,7 @@ def mc_galpop_synthetic_subs(
 ):
     n_cens = logmhost.size
     mah_key, rhalo_key, axes_key, sfh_key = jran.split(ran_key, 4)
-    _res = mc_diffmah_params_halopop_synthetic_subs(
+    _res = _mc_diffmah_params_halopop_synthetic_subs(
         mah_key,
         logmhost,
         z_obs,
@@ -145,7 +145,7 @@ def mc_galpop_synthetic_subs(
     return galcat
 
 
-def mc_diffmah_params_halopop_synthetic_subs(
+def _mc_diffmah_params_halopop_synthetic_subs(
     ran_key,
     logmhost_at_z_obs,
     z_obs,
@@ -153,17 +153,17 @@ def mc_diffmah_params_halopop_synthetic_subs(
     cosmo_params,
     diffmahpop_params=DEFAULT_DIFFMAHPOP_PARAMS,
 ):
-    mah_params_cens = mc_diffmah_params_cens(
+    mah_params_cens = _mc_diffmah_params_cens(
         ran_key,
         logmhost_at_z_obs,
         z_obs,
         cosmo_params,
         diffmahpop_params=diffmahpop_params,
     )
-    subs_logmh_at_z_obs, subs_host_halo_indx = mc_subhalo_mass(
+    subs_logmh_at_z_obs, subs_host_halo_indx = _mc_subhalo_mass(
         ran_key, logmhost_at_z_obs, lgmp_min
     )
-    mah_params_sats = mc_diffmah_params_sats(
+    mah_params_sats = _mc_diffmah_params_sats(
         ran_key,
         subs_logmh_at_z_obs,
         z_obs,
@@ -173,14 +173,14 @@ def mc_diffmah_params_halopop_synthetic_subs(
     return mah_params_cens, mah_params_sats, subs_host_halo_indx, subs_logmh_at_z_obs
 
 
-def mc_subhalo_mass(ran_key, logmhost, lgmp_min):
+def _mc_subhalo_mass(ran_key, logmhost, lgmp_min):
     subhalo_info = generate_subhalopop(ran_key, logmhost, lgmp_min)
     subs_lgmu, subs_lgmhost, subs_host_halo_indx = subhalo_info
     subs_logmh_at_z = subs_lgmu + subs_lgmhost
     return subs_logmh_at_z, subs_host_halo_indx
 
 
-def mc_diffmah_params_cens(
+def _mc_diffmah_params_cens(
     ran_key,
     lgmh_at_z_obs,
     z_obs,
@@ -207,7 +207,7 @@ def mc_diffmah_params_cens(
     return mah_params
 
 
-def mc_diffmah_params_sats(
+def _mc_diffmah_params_sats(
     ran_key,
     lgmh_at_z_obs,
     z_obs,
