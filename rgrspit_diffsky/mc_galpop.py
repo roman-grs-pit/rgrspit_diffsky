@@ -8,6 +8,11 @@ from diffmah.diffmahpop_kernels.mc_bimod_cens import mc_diffmah_params_singlecen
 from diffmah.diffmahpop_kernels.mc_bimod_sats import mc_diffmah_params_singlesat
 from diffmah.diffmahpop_kernels.param_utils import mc_select_diffmah_params
 from diffsky.mass_functions.mc_subs import generate_subhalopop
+from diffstar.defaults import T_TABLE_MIN
+from diffstar.utils import cumulative_mstar_formed_galpop
+from diffstarpop import mc_diffstarpop_tpeak as mcdsp
+from diffstarpop.defaults import DEFAULT_DIFFSTARPOP_PARAMS
+from diffstarpop.param_utils import mc_select_diffstar_params
 from dsps.cosmology.flat_wcdm import _age_at_z_kern, age_at_z0
 from jax import jit as jjit
 from jax import numpy as jnp
@@ -23,7 +28,7 @@ mc_diffmah_params_cenpop = jjit(vmap(mc_diffmah_params_singlecen, in_axes=_POP))
 mc_diffmah_params_satpop = jjit(vmap(mc_diffmah_params_singlesat, in_axes=_POP))
 
 
-def mc_halopop_synthetic_subs_with_positions(
+def mc_galpop_synthetic_subs(
     ran_key,
     logmhost,
     halo_radius,
@@ -36,7 +41,7 @@ def mc_halopop_synthetic_subs_with_positions(
     diffmahpop_params=DEFAULT_DIFFMAHPOP_PARAMS,
 ):
     n_cens = logmhost.size
-    mah_key, rhalo_key, axes_key = jran.split(ran_key, 3)
+    mah_key, rhalo_key, axes_key, sfh_key = jran.split(ran_key, 4)
     _res = mc_diffmah_params_halopop_synthetic_subs(
         mah_key,
         logmhost,
@@ -88,6 +93,7 @@ def mc_halopop_synthetic_subs_with_positions(
     host_mah_params = DiffmahParams(
         *[np.concatenate((x, y)) for x, y in zip(mah_params_cens, subs_host_diffmah)]
     )
+    lgmhost_at_t_inf = _log_mah_kern(host_mah_params, mah_params.t_peak, lgt0)
 
     subs_lgmh_at_t_inf = _log_mah_kern(mah_params_sats, mah_params_sats.t_peak, lgt0)
     subs_lgmhost_at_t_inf = _log_mah_kern(
@@ -99,17 +105,44 @@ def mc_halopop_synthetic_subs_with_positions(
 
     upid = np.concatenate((np.zeros(n_cens).astype(int) - 1, subs_host_halo_indx))
 
-    ret = (
+    t_table = jnp.linspace(T_TABLE_MIN, t_obs, 50)
+    args = (
+        DEFAULT_DIFFSTARPOP_PARAMS,
         mah_params,
-        host_mah_params,
-        upid,
-        pos,
-        vel,
         logmp0,
-        lgmp_t_obs,
         lgmu_at_t_inf,
+        lgmhost_at_t_inf,
+        t_obs - mah_params.t_peak,
+        sfh_key,
+        t_table,
     )
-    return ret
+    _sfh_res = mcdsp.mc_diffstar_sfh_galpop(*args)
+    sfh_ms, sfh_q, frac_q, mc_is_q = _sfh_res[2:]
+    sfh_table = jnp.where(mc_is_q.reshape((-1, 1)), sfh_q, sfh_ms)
+    smh_table = cumulative_mstar_formed_galpop(t_table, sfh_table)
+    diffstar_params_ms, diffstar_params_q = _sfh_res[0:2]
+    sfh_params = mc_select_diffstar_params(
+        diffstar_params_q, diffstar_params_ms, mc_is_q
+    )
+
+    lgsfr_at_t_obs = np.log10(sfh_table[:, -1])
+    lgsm_at_t_obs = np.log10(smh_table[:, -1])
+    lgssfr_at_t_obs = lgsfr_at_t_obs - lgsm_at_t_obs
+
+    galcat = dict()
+    galcat["mah_params"] = mah_params
+    galcat["sfh_params"] = sfh_params
+    galcat["host_mah_params"] = host_mah_params
+    galcat["upid"] = upid
+    galcat["pos"] = pos
+    galcat["vel"] = vel
+    galcat["logmp0"] = logmp0
+    galcat["logmp_t_obs"] = lgmp_t_obs
+    galcat["logmu_at_t_inf"] = lgmu_at_t_inf
+    galcat["logsm_at_t_obs"] = lgsm_at_t_obs
+    galcat["logssfr_at_t_obs"] = lgssfr_at_t_obs
+
+    return galcat
 
 
 def mc_diffmah_params_halopop_synthetic_subs(

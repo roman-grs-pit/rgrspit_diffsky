@@ -65,7 +65,7 @@ def test_mc_diffmah_params_halopop_synthetic_subs():
     assert np.all(np.isfinite(subs_mhalo_at_z_obs))
 
 
-def test_mc_halopop_synthetic_subs_with_positions():
+def test_mc_galpop_synthetic_subs():
     ran_key = jran.key(0)
     lgmp_min = 11.0
     n_halos = 2_500
@@ -77,7 +77,7 @@ def test_mc_halopop_synthetic_subs_with_positions():
     halo_vel = jran.uniform(vel_key, shape=(n_halos, 3))
     Lbox = 2_000.0
 
-    _res = mc_galpop.mc_halopop_synthetic_subs_with_positions(
+    _res = mc_galpop.mc_galpop_synthetic_subs(
         mc_key,
         logmhost,
         halo_radius,
