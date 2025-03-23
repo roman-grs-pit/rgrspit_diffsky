@@ -1,6 +1,8 @@
 """Generate a Monte Carlo realization of the galaxy distribution
 for an input catalog of AbacusSummit host halos"""
 
+import numpy as np
+from diffmah.diffmah_kernels import DiffmahParams, _log_mah_kern
 from diffmah.diffmahpop_kernels.bimod_censat_params import DEFAULT_DIFFMAHPOP_PARAMS
 from diffmah.diffmahpop_kernels.mc_bimod_cens import mc_diffmah_params_singlecen
 from diffmah.diffmahpop_kernels.mc_bimod_sats import mc_diffmah_params_singlesat
@@ -33,6 +35,7 @@ def mc_halopop_synthetic_subs_with_positions(
     Lbox,
     diffmahpop_params=DEFAULT_DIFFMAHPOP_PARAMS,
 ):
+    n_cens = logmhost.size
     mah_key, rhalo_key, axes_key = jran.split(ran_key, 3)
     _res = mc_diffmah_params_halopop_synthetic_subs(
         mah_key,
@@ -64,7 +67,48 @@ def mc_halopop_synthetic_subs_with_positions(
     subs_pos = jnp.mod(subs_host_pos + subs_host_centric_pos, Lbox)
     subs_vel = subs_host_vel + subs_host_centric_vel
 
-    ret = (*_res, subs_pos, subs_vel)
+    pos = np.concatenate((halo_pos, subs_pos))
+    vel = np.concatenate((halo_vel, subs_vel))
+
+    # For every sub, get diffmah params of its host halo
+    subs_host_diffmah = DiffmahParams(
+        *[x[subs_host_halo_indx] for x in mah_params_cens]
+    )
+
+    t_obs = _age_at_z_kern(z_obs, *cosmo_params)
+    t0 = age_at_z0(*cosmo_params)
+    lgt0 = np.log10(t0)
+
+    mah_params = DiffmahParams(
+        *[np.concatenate((x, y)) for x, y in zip(mah_params_cens, mah_params_sats)]
+    )
+    logmp0 = np.array(_log_mah_kern(mah_params, t0, lgt0))
+    lgmp_t_obs = np.array(_log_mah_kern(mah_params, t_obs, lgt0))
+
+    host_mah_params = DiffmahParams(
+        *[np.concatenate((x, y)) for x, y in zip(mah_params_cens, subs_host_diffmah)]
+    )
+
+    subs_lgmh_at_t_inf = _log_mah_kern(mah_params_sats, mah_params_sats.t_peak, lgt0)
+    subs_lgmhost_at_t_inf = _log_mah_kern(
+        subs_host_diffmah, mah_params_sats.t_peak, lgt0
+    )
+    subs_lgmu_at_t_inf = subs_lgmh_at_t_inf - subs_lgmhost_at_t_inf
+    hosts_lgmu_at_t_inf = np.zeros(n_cens)
+    lgmu_at_t_inf = np.concatenate((hosts_lgmu_at_t_inf, subs_lgmu_at_t_inf))
+
+    upid = np.concatenate((np.zeros(n_cens).astype(int) - 1, subs_host_halo_indx))
+
+    ret = (
+        mah_params,
+        host_mah_params,
+        upid,
+        pos,
+        vel,
+        logmp0,
+        lgmp_t_obs,
+        lgmu_at_t_inf,
+    )
     return ret
 
 
