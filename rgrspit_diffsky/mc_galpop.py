@@ -12,7 +12,9 @@ from jax import numpy as jnp
 from jax import random as jran
 from jax import vmap
 
+from .fake_sats import vector_utilities as vectu
 from .fake_sats.ellipsoidal_nfw_phase_space import mc_ellipsoidal_nfw
+from .fake_sats.ellipsoidal_velocities import calculate_virial_velocity
 
 _POP = (None, 0, None, 0, None)
 mc_diffmah_params_cenpop = jjit(vmap(mc_diffmah_params_singlecen, in_axes=_POP))
@@ -22,24 +24,39 @@ mc_diffmah_params_satpop = jjit(vmap(mc_diffmah_params_singlesat, in_axes=_POP))
 def mc_halopop_synthetic_subs_with_positions(
     ran_key,
     logmhost_at_z_obs,
+    halo_radius_at_z_obs,
     z_obs,
     lgmp_min,
     cosmo_params,
     diffmahpop_params=DEFAULT_DIFFMAHPOP_PARAMS,
 ):
-    mah_key, rhalo_key = jran.split(ran_key, 2)
+    mah_key, rhalo_key, axes_key = jran.split(ran_key, 3)
     _res = mc_diffmah_params_halopop_synthetic_subs(
         mah_key,
         logmhost_at_z_obs,
         z_obs,
         lgmp_min,
         cosmo_params,
-        diffmahpop_params=DEFAULT_DIFFMAHPOP_PARAMS,
+        diffmahpop_params=diffmahpop_params,
     )
     mah_params_cens, mah_params_sats, subs_host_halo_indx, subs_logmh_at_z_obs = _res
 
-    raise NotImplementedError()
-    _res = mc_ellipsoidal_nfw(rhalo_key, rhalo, conc, sigma, major_axes, b_to_a, c_to_a)
+    subs_rhost = halo_radius_at_z_obs[subs_host_halo_indx]
+    subs_logmhost = logmhost_at_z_obs[subs_host_halo_indx]
+    n_sats = subs_host_halo_indx.size
+    ZZ = jnp.zeros(n_sats)
+    conc = ZZ + 5.0
+    subs_sigma = calculate_virial_velocity(10**subs_logmhost, subs_rhost)
+    major_axes = jran.uniform(axes_key, minval=0, maxval=1, shape=(n_sats, 3))
+    major_axes = vectu.normalized_vectors(major_axes)
+    b_to_a = jnp.ones(n_sats)
+    c_to_a = jnp.ones(n_sats)
+
+    subs_host_centric_pos, subs_host_centric_vel = mc_ellipsoidal_nfw(
+        rhalo_key, subs_rhost, conc, subs_sigma, major_axes, b_to_a, c_to_a
+    )
+    ret = (*_res, subs_host_centric_pos, subs_host_centric_vel)
+    return ret
 
 
 def mc_diffmah_params_halopop_synthetic_subs(

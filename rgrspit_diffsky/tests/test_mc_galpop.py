@@ -70,7 +70,13 @@ def test_mc_halopop_synthetic_subs_with_positions():
     lgmp_min = 11.0
     n_halos = 2_500
     logmhost_at_z_obs = np.linspace(lgmp_min, 15, n_halos)
+    halo_radius_at_z_obs = np.ones_like(logmhost_at_z_obs)
     z_obs = 0.5
     _res = mc_galpop.mc_halopop_synthetic_subs_with_positions(
-        ran_key, logmhost_at_z_obs, z_obs, lgmp_min, DEFAULT_COSMOLOGY
+        ran_key,
+        logmhost_at_z_obs,
+        halo_radius_at_z_obs,
+        z_obs,
+        lgmp_min,
+        DEFAULT_COSMOLOGY,
     )
