@@ -19,7 +19,7 @@ mc_diffmah_params_satpop = jjit(vmap(mc_diffmah_params_singlesat, in_axes=_POP))
 
 def mc_diffmah_params_halopop_synthetic_subs(
     ran_key,
-    mhost_at_z_obs,
+    logmhost_at_z_obs,
     z_obs,
     lgmp_min,
     cosmo_params,
@@ -27,48 +27,47 @@ def mc_diffmah_params_halopop_synthetic_subs(
 ):
     mah_params_cens = mc_diffmah_params_cens(
         ran_key,
-        mhost_at_z_obs,
+        logmhost_at_z_obs,
         z_obs,
         cosmo_params,
         diffmahpop_params=diffmahpop_params,
     )
-    subs_mhalo_at_z_obs, subs_host_halo_indx = mc_subhalo_mass(
-        ran_key, mhost_at_z_obs, lgmp_min
+    subs_logmh_at_z_obs, subs_host_halo_indx = mc_subhalo_mass(
+        ran_key, logmhost_at_z_obs, lgmp_min
     )
     mah_params_sats = mc_diffmah_params_sats(
         ran_key,
-        subs_mhalo_at_z_obs,
+        subs_logmh_at_z_obs,
         z_obs,
         cosmo_params,
         diffmahpop_params=diffmahpop_params,
     )
-    return mah_params_cens, mah_params_sats, subs_host_halo_indx, subs_mhalo_at_z_obs
+    return mah_params_cens, mah_params_sats, subs_host_halo_indx, subs_logmh_at_z_obs
 
 
-def mc_subhalo_mass(ran_key, host_halo_mass, lgmp_min):
-    subhalo_info = generate_subhalopop(ran_key, host_halo_mass, lgmp_min)
+def mc_subhalo_mass(ran_key, logmhost, lgmp_min):
+    subhalo_info = generate_subhalopop(ran_key, logmhost, lgmp_min)
     subs_lgmu, subs_lgmhost, subs_host_halo_indx = subhalo_info
     subs_logmh_at_z = subs_lgmu + subs_lgmhost
-    subhalo_mass = 10**subs_logmh_at_z
-    return subhalo_mass, subs_host_halo_indx
+    return subs_logmh_at_z, subs_host_halo_indx
 
 
 def mc_diffmah_params_cens(
     ran_key,
-    mhalo_at_z_obs,
+    lgmh_at_z_obs,
     z_obs,
     cosmo_params,
     diffmahpop_params=DEFAULT_DIFFMAHPOP_PARAMS,
 ):
-    n_halos = mhalo_at_z_obs.size
+    n_halos = lgmh_at_z_obs.size
     params_key, mah_type_key = jran.split(ran_key, 2)
     ran_keys = jran.split(params_key, n_halos)
-    lgmh_at_z_obs = jnp.log10(mhalo_at_z_obs)
     t0 = age_at_z0(*cosmo_params)
     lgt0 = jnp.log10(t0)
     t_obs = _age_at_z_kern(z_obs, *cosmo_params)
+    t_peak = jnp.zeros(n_halos) + t0  # no early-peaking host halos
     _res = mc_diffmah_params_cenpop(
-        diffmahpop_params, lgmh_at_z_obs, t_obs, ran_keys, lgt0
+        diffmahpop_params, lgmh_at_z_obs, t_obs, ran_keys, lgt0, t_peak=t_peak
     )
     mah_params_early, mah_params_late, frac_early_cens = _res
 
@@ -82,15 +81,14 @@ def mc_diffmah_params_cens(
 
 def mc_diffmah_params_sats(
     ran_key,
-    mhalo_at_z_obs,
+    lgmh_at_z_obs,
     z_obs,
     cosmo_params,
     diffmahpop_params=DEFAULT_DIFFMAHPOP_PARAMS,
 ):
-    n_halos = mhalo_at_z_obs.size
+    n_halos = lgmh_at_z_obs.size
     params_key, mah_type_key = jran.split(ran_key, 2)
     ran_keys = jran.split(params_key, n_halos)
-    lgmh_at_z_obs = jnp.log10(mhalo_at_z_obs)
     t0 = age_at_z0(*cosmo_params)
     lgt0 = jnp.log10(t0)
     t_obs = _age_at_z_kern(z_obs, *cosmo_params)
