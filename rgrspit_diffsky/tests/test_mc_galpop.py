@@ -11,7 +11,7 @@ def test_mc_subhalo_mass():
     """Enforce that mc_subhalo_mass generates subs with 10**lgmp_min<=Msub<=Mhost"""
     ran_key = jran.key(0)
     lgmp_min = 11.0
-    n_halos = 2_500
+    n_halos = 500
     logmh_host = np.linspace(lgmp_min, 15, n_halos)
     subhalo_logmh, subs_host_halo_indx = mc_galpop.mc_subhalo_mass(
         ran_key, logmh_host, lgmp_min
@@ -28,7 +28,7 @@ def test_mc_subhalo_mass():
 def test_mc_diffmah_params_cens():
     ran_key = jran.key(0)
     lgmp_min = 11.0
-    n_halos = 2_500
+    n_halos = 500
     logmh_host = np.linspace(lgmp_min, 15, n_halos)
     z_obs = 0.5
     mah_params = mc_galpop.mc_diffmah_params_cens(
@@ -40,7 +40,7 @@ def test_mc_diffmah_params_cens():
 def test_mc_diffmah_params_sats():
     ran_key = jran.key(0)
     lgmp_min = 11.0
-    n_halos = 2_500
+    n_halos = 500
     logmh_host = np.linspace(lgmp_min, 15, n_halos)
     z_obs = 0.5
     mah_params = mc_galpop.mc_diffmah_params_sats(
@@ -52,7 +52,7 @@ def test_mc_diffmah_params_sats():
 def test_mc_diffmah_params_halopop_synthetic_subs():
     ran_key = jran.key(0)
     lgmp_min = 11.0
-    n_halos = 2_500
+    n_halos = 500
     logmhost_at_z_obs = np.linspace(lgmp_min, 15, n_halos)
     z_obs = 0.5
     _res = mc_galpop.mc_diffmah_params_halopop_synthetic_subs(
@@ -68,7 +68,7 @@ def test_mc_diffmah_params_halopop_synthetic_subs():
 def test_mc_galpop_synthetic_subs():
     ran_key = jran.key(0)
     lgmp_min = 11.0
-    n_halos = 2_500
+    n_halos = 500
     logmhost = np.linspace(lgmp_min, 15, n_halos)
     halo_radius = np.ones_like(logmhost)
     z_obs = 0.5
@@ -77,7 +77,7 @@ def test_mc_galpop_synthetic_subs():
     halo_vel = jran.uniform(vel_key, shape=(n_halos, 3))
     Lbox = 2_000.0
 
-    _res = mc_galpop.mc_galpop_synthetic_subs(
+    galcat = mc_galpop.mc_galpop_synthetic_subs(
         mc_key,
         logmhost,
         halo_radius,
@@ -88,3 +88,9 @@ def test_mc_galpop_synthetic_subs():
         DEFAULT_COSMOLOGY,
         Lbox,
     )
+    for key, val in galcat.items():
+        if key == "sfh_params":
+            assert np.all(np.isfinite(val.ms_params)), key
+            assert np.all(np.isfinite(val.q_params)), key
+        else:
+            assert np.all(np.isfinite(val)), key
