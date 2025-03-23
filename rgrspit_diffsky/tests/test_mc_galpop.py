@@ -94,3 +94,6 @@ def test_mc_galpop_synthetic_subs():
             assert np.all(np.isfinite(val.q_params)), key
         else:
             assert np.all(np.isfinite(val)), key
+
+    assert np.all(galcat["pos"] >= 0)
+    assert np.all(galcat["pos"] <= Lbox)
