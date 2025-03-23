@@ -40,6 +40,42 @@ def mc_galpop_synthetic_subs(
     Lbox,
     diffmahpop_params=DEFAULT_DIFFMAHPOP_PARAMS,
 ):
+    """Generate a Monte Carlo realizaton of galaxies populating the input halos
+
+    Parameters
+    ----------
+    ran_key : jax.random.key
+
+    logmhost : ndarray, shape (n_hosts, )
+        log10 of halo mass in units of Msun
+
+    halo_radius : ndarray, shape (n_hosts, )
+        Halo radius in units of Mpc
+
+    halo_pos : ndarray, shape (n_hosts, 3)
+        Comoving halo position in units of Mpc
+
+    halo_vel : ndarray, shape (n_hosts, 3)
+        Halo velocity in units of km/s
+
+    z_obs : float
+        Redshift of the halo catalog
+
+    lgmp_min : float
+        log10 of halo mass cutoff in Msun
+
+    cosmo_params : namedtuple
+        Field names: ('Om0', 'w0', 'wa', 'h')
+
+    Lbox : float
+        Comoving size of the periodic box in Mpc
+
+    Returns
+    -------
+    galcat : dict
+        Dictionary storing MAHs, pos/vel, and SFH info about cens and sats
+
+    """
     n_cens = logmhost.size
     mah_key, rhalo_key, axes_key, sfh_key = jran.split(ran_key, 4)
     _res = _mc_diffmah_params_halopop_synthetic_subs(
