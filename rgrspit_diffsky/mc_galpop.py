@@ -2,7 +2,7 @@
 for an input catalog of AbacusSummit host halos"""
 
 import numpy as np
-from diffmah.diffmah_kernels import DiffmahParams, _log_mah_kern
+from diffmah.diffmah_kernels import DiffmahParams, _log_mah_kern, mah_halopop
 from diffmah.diffmahpop_kernels.bimod_censat_params import DEFAULT_DIFFMAHPOP_PARAMS
 from diffmah.diffmahpop_kernels.mc_bimod_cens import mc_diffmah_params_singlecen
 from diffmah.diffmahpop_kernels.mc_bimod_sats import mc_diffmah_params_singlesat
@@ -135,18 +135,19 @@ def mc_galpop_synthetic_subs(
     subs_lgmhost_at_t_inf = _log_mah_kern(
         subs_host_diffmah, mah_params_sats.t_peak, lgt0
     )
-    subs_lgmu_at_t_inf = subs_lgmh_at_t_inf - subs_lgmhost_at_t_inf
-    hosts_lgmu_at_t_inf = np.zeros(n_cens)
-    lgmu_at_t_inf = np.concatenate((hosts_lgmu_at_t_inf, subs_lgmu_at_t_inf))
+    subs_lgmu_t_inf = subs_lgmh_at_t_inf - subs_lgmhost_at_t_inf
+    hosts_lgmu_t_inf = np.zeros(n_cens)
+    lgmu_t_inf = np.concatenate((hosts_lgmu_t_inf, subs_lgmu_t_inf))
 
     upid = np.concatenate((np.zeros(n_cens).astype(int) - 1, subs_host_halo_indx))
 
     t_table = jnp.linspace(T_TABLE_MIN, t_obs, 50)
+    log_mah_table = mah_halopop(mah_params, t_table, lgt0)[1]
     args = (
         DEFAULT_DIFFSTARPOP_PARAMS,
         mah_params,
         logmp0,
-        lgmu_at_t_inf,
+        lgmu_t_inf,
         lgmhost_at_t_inf,
         t_obs - mah_params.t_peak,
         sfh_key,
@@ -162,8 +163,8 @@ def mc_galpop_synthetic_subs(
     )
 
     lgsfr_at_t_obs = np.log10(sfh_table[:, -1])
-    lgsm_at_t_obs = np.log10(smh_table[:, -1])
-    lgssfr_at_t_obs = lgsfr_at_t_obs - lgsm_at_t_obs
+    logsm_t_obs = np.log10(smh_table[:, -1])
+    logssfr_t_obs = lgsfr_at_t_obs - logsm_t_obs
 
     galcat = dict()
     galcat["mah_params"] = mah_params
@@ -174,9 +175,16 @@ def mc_galpop_synthetic_subs(
     galcat["vel"] = vel
     galcat["logmp0"] = logmp0
     galcat["logmp_t_obs"] = lgmp_t_obs
-    galcat["logmu_at_t_inf"] = lgmu_at_t_inf
-    galcat["logsm_at_t_obs"] = lgsm_at_t_obs
-    galcat["logssfr_at_t_obs"] = lgssfr_at_t_obs
+    galcat["logmu_t_inf"] = lgmu_t_inf
+    galcat["logsm_t_obs"] = logsm_t_obs
+    galcat["logssfr_t_obs"] = logssfr_t_obs
+    galcat["t_table"] = t_table
+    galcat["log_mah_table"] = log_mah_table
+    galcat["sfh_table"] = sfh_table
+
+    galcat["t0"] = t0
+    galcat["z_obs"] = z_obs
+    galcat["t_obs"] = t_obs
 
     return galcat
 
