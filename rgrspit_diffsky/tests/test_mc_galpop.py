@@ -69,14 +69,22 @@ def test_mc_halopop_synthetic_subs_with_positions():
     ran_key = jran.key(0)
     lgmp_min = 11.0
     n_halos = 2_500
-    logmhost_at_z_obs = np.linspace(lgmp_min, 15, n_halos)
-    halo_radius_at_z_obs = np.ones_like(logmhost_at_z_obs)
+    logmhost = np.linspace(lgmp_min, 15, n_halos)
+    halo_radius = np.ones_like(logmhost)
     z_obs = 0.5
+    mc_key, pos_key, vel_key = jran.split(ran_key, 3)
+    halo_pos = jran.uniform(pos_key, shape=(n_halos, 3))
+    halo_vel = jran.uniform(vel_key, shape=(n_halos, 3))
+    Lbox = 2_000.0
+
     _res = mc_galpop.mc_halopop_synthetic_subs_with_positions(
-        ran_key,
-        logmhost_at_z_obs,
-        halo_radius_at_z_obs,
+        mc_key,
+        logmhost,
+        halo_radius,
+        halo_pos,
+        halo_vel,
         z_obs,
         lgmp_min,
         DEFAULT_COSMOLOGY,
+        Lbox,
     )

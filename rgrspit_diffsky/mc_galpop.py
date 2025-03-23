@@ -23,17 +23,20 @@ mc_diffmah_params_satpop = jjit(vmap(mc_diffmah_params_singlesat, in_axes=_POP))
 
 def mc_halopop_synthetic_subs_with_positions(
     ran_key,
-    logmhost_at_z_obs,
-    halo_radius_at_z_obs,
+    logmhost,
+    halo_radius,
+    halo_pos,
+    halo_vel,
     z_obs,
     lgmp_min,
     cosmo_params,
+    Lbox,
     diffmahpop_params=DEFAULT_DIFFMAHPOP_PARAMS,
 ):
     mah_key, rhalo_key, axes_key = jran.split(ran_key, 3)
     _res = mc_diffmah_params_halopop_synthetic_subs(
         mah_key,
-        logmhost_at_z_obs,
+        logmhost,
         z_obs,
         lgmp_min,
         cosmo_params,
@@ -41,8 +44,8 @@ def mc_halopop_synthetic_subs_with_positions(
     )
     mah_params_cens, mah_params_sats, subs_host_halo_indx, subs_logmh_at_z_obs = _res
 
-    subs_rhost = halo_radius_at_z_obs[subs_host_halo_indx]
-    subs_logmhost = logmhost_at_z_obs[subs_host_halo_indx]
+    subs_rhost = halo_radius[subs_host_halo_indx]
+    subs_logmhost = logmhost[subs_host_halo_indx]
     n_sats = subs_host_halo_indx.size
     ZZ = jnp.zeros(n_sats)
     conc = ZZ + 5.0
@@ -55,7 +58,13 @@ def mc_halopop_synthetic_subs_with_positions(
     subs_host_centric_pos, subs_host_centric_vel = mc_ellipsoidal_nfw(
         rhalo_key, subs_rhost, conc, subs_sigma, major_axes, b_to_a, c_to_a
     )
-    ret = (*_res, subs_host_centric_pos, subs_host_centric_vel)
+    subs_host_pos = halo_pos[subs_host_halo_indx]
+    subs_host_vel = halo_vel[subs_host_halo_indx]
+
+    subs_pos = jnp.mod(subs_host_pos + subs_host_centric_pos, Lbox)
+    subs_vel = subs_host_vel + subs_host_centric_vel
+
+    ret = (*_res, subs_pos, subs_vel)
     return ret
 
 
