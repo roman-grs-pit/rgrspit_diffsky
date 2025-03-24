@@ -20,4 +20,3 @@ To build html of test coverage::
 
     $ pytest -v --cov --cov-report html
     $ open htmlcov/index.html
-
