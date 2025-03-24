@@ -1,9 +1,34 @@
-"""Generate an ellipsoidal velocity distribution
-"""
-from jax import random as jran
+"""Generate an ellipsoidal velocity distribution"""
+
 import numpy as np
+from jax import random as jran
+
 from .rotations3d import rotation_matrices_from_vectors
 from .vector_utilities import rotate_vector_collection
+
+NEWTON_G = 4.3e-09  # (Mpc/Msun)*(km/s)^2
+
+
+def calculate_virial_velocity(halo_mass, halo_radius):
+    """Calculate halo virial velocity to set normalization
+    of NFW satellite velocity dispersion
+
+    Parameters
+    ----------
+    halo_mass : ndarray, shape (n, )
+        Units of Msun
+
+    halo_radius : ndarray, shape (n, )
+        Units of Mpc
+
+    Returns
+    -------
+    halo_vvir : ndarray, shape (n, )
+        Units of km/s
+
+    """
+    halo_vvir = np.sqrt(NEWTON_G * halo_mass / halo_radius)
+    return halo_vvir
 
 
 def mc_ellipsoidal_velocities(ran_key, sigma, major_axes, b_to_a, c_to_a):
