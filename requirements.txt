@@ -1,7 +1,7 @@
 numpy
 scipy
 jax
-diffmah>=0.7.0
+diffmah>=0.7.1
 diffstar>=0.3.3
 dsps>=0.4.0
 diffsky
