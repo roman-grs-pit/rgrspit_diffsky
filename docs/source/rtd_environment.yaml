@@ -15,3 +15,13 @@ dependencies:
   - jax
   - jaxlib
   - h5py
+  - diffmah>=0.7.1
+  - diffstar>=0.3.3
+  - dsps>=0.4.0
+  - git+https://github.com/ArgonneCPAC/diffstarpop.git
+  - diffsky
+
+
+
+
+
