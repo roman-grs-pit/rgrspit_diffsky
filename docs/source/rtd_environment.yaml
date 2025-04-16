@@ -12,6 +12,7 @@ dependencies:
   - sphinx=7.2.4
   - sphinx-copybutton
   - numpy
+  - scipy
   - jax
   - jaxlib
   - h5py
