@@ -13,8 +13,10 @@ with `diffmah <https://diffmah.readthedocs.io/en/latest/>`__,
 and `dsps <https://dsps.readthedocs.io/en/latest/>`__.
 The core Diffsky library is publicly available on
 `GitHub <https://github.com/ArgonneCPAC/diffsky/>`__.
+The Roman Galaxy Redshift Survey Project Infrastructure Team Diffsky (GRS PIT) library
+is publicly available at `GitHub <https://github.com/roman-grs-pit/rgrspit_diffsky/>`__.
 The rgrspit_diffsky library uses Diffsky to make mocks tailored to support
-the Roman Galaxy Redshift Survey Project Infrastructure Team.
+the Roman GRS PIT.
 
 .. toctree::
    :maxdepth: 1
