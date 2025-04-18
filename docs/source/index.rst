@@ -10,7 +10,7 @@ Diffsky is a python library providing
 of a population of galaxies
 with `Diffsky <https://github.com/ArgonneCPAC/diffsky/>`__.
 The Roman Galaxy Redshift Survey Project Infrastructure Team Diffsky (GRS PIT) library
-is publicly available at `GitHub <https://github.com/roman-grs-pit/rgrspit_diffsky/>`__.
+is publicly available on `GitHub <https://github.com/roman-grs-pit/rgrspit_diffsky/>`__.
 The rgrspit_diffsky library uses Diffsky to make mocks tailored to support
 the Roman GRS PIT.
 
