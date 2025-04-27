@@ -23,4 +23,4 @@ def sfr_to_Halpha_KTC94(sfr):
     l_halpha : ndarray, shape (n, )
         Halpha luminosity in units of erg/s
     """
-    return sfr - np.log10(K98_HALPHA_COEF)
+    return sfr / K98_HALPHA_COEF

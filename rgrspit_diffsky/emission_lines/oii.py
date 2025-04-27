@@ -25,4 +25,4 @@ def sfr_to_OII3727_K98(sfr):
     l_oii : ndarray, shape (n, )
         OII luminosity at 3727 in units of erg/s
     """
-    return sfr - np.log10(K98_OII_COEF)
+    return sfr / K98_OII_COEF
