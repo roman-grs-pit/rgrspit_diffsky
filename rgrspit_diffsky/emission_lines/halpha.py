@@ -1,5 +1,5 @@
 """Module implementing scaling relations for Halpha emission."""
-import numpy as np  # type: ignore
+# import numpy as np  # type: ignore
 
 K98_HALPHA_COEF = 7.9e-42
 
@@ -23,4 +23,4 @@ def sfr_to_Halpha_KTC94(sfr):
     l_halpha : ndarray, shape (n, )
         Halpha luminosity in units of erg/s
     """
-    return sfr - np.log10(K98_HALPHA_COEF)
+    return sfr / K98_HALPHA_COEF
