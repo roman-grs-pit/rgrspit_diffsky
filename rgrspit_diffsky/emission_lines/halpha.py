@@ -1,5 +1,5 @@
 """Module implementing scaling relations for Halpha emission."""
-import numpy as np  # type: ignore
+# import numpy as np  # type: ignore
 
 K98_HALPHA_COEF = 7.9e-42
 

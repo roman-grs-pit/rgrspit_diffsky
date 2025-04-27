@@ -1,6 +1,6 @@
 """Module implementing scaling relations for OII emission."""
 
-import numpy as np  # type: ignore
+# import numpy as np  # type: ignore
 
 K98_OII_COEF = 1.4e-41
 
