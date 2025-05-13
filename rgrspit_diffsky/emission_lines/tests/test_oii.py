@@ -51,3 +51,32 @@ def test_oii_conversion_negative_sfr():
     sfr = np.array([-1.0])
     with pytest.raises(ValueError):
         sfr_to_OII3727_K98(sfr)
+
+
+def test_oii_luminosity_order_of_magnitude():
+    """Test that OII luminosities are in physically reasonable ranges.
+    
+    For typical star-forming galaxies:
+    - SFR ~ 1 M_sun/yr should give L_OII ~ 10^{40}-10^{41} erg/s
+    - SFR ~ 10 M_sun/yr should give L_OII ~ 10^{41}-10^{42} erg/s
+    - SFR ~ 100 M_sun/yr should give L_OII ~ 10^{42}-10^{43} erg/s
+    
+    References:
+    - Kennicutt (1998) ARAA 36, 189
+    - Kewley et al. (2004) AJ 127, 2002
+    """
+    # Test for a range of typical SFRs
+    test_sfrs = np.array([1.0, 10.0, 100.0])
+    l_oii = sfr_to_OII3727_K98(test_sfrs)
+    
+    # Expected ranges (in log10)
+    min_expected = np.array([40.0, 41.0, 42.0])
+    max_expected = np.array([41.0, 42.0, 43.0])
+    
+    log_l_oii = np.log10(l_oii)
+    
+    # Check each SFR case is within expected range
+    for i in range(len(test_sfrs)):
+        assert min_expected[i] <= log_l_oii[i] <= max_expected[i], \
+            f"OII luminosity for SFR={test_sfrs[i]} M_sun/yr is {log_l_oii[i]}, " \
+            f"expected range: [{min_expected[i]}, {max_expected[i]}]"
