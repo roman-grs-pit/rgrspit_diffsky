@@ -1,10 +1,11 @@
 """Module implementing scaling relations for OII emission."""
 
-# import numpy as np  # type: ignore
+import numpy as np  # type: ignore
 
 K98_OII_COEF = 1.4e-41
 
 
+# pylint: disable=invalid-name
 def sfr_to_OII3727_K98(sfr):
     """Convert star formation rate to OII forbidden-line doublet luminosity
     with Kennicutt (1998) relation.
@@ -25,4 +26,6 @@ def sfr_to_OII3727_K98(sfr):
     l_oii : ndarray, shape (n, )
         OII luminosity at 3727 in units of erg/s
     """
+    if np.any(sfr < 0):
+        raise ValueError("Star formation rate cannot be negative")
     return sfr / K98_OII_COEF

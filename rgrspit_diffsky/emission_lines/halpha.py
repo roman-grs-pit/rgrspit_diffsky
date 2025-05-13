@@ -1,9 +1,10 @@
 """Module implementing scaling relations for Halpha emission."""
-# import numpy as np  # type: ignore
+import numpy as np  # type: ignore
 
 K98_HALPHA_COEF = 7.9e-42
 
 
+# pylint: disable=invalid-name
 def sfr_to_Halpha_KTC94(sfr):
     """Convert star formation rate to Halpha luminosity with Kennicutt,
     Tamblyn and Congdon (1994) relation as also described in Kennicutt (1989).
@@ -23,4 +24,6 @@ def sfr_to_Halpha_KTC94(sfr):
     l_halpha : ndarray, shape (n, )
         Halpha luminosity in units of erg/s
     """
+    if np.any(sfr < 0):
+        raise ValueError("Star formation rate cannot be negative")
     return sfr / K98_HALPHA_COEF
