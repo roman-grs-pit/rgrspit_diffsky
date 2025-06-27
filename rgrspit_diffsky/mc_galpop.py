@@ -10,7 +10,7 @@ from diffmah.diffmahpop_kernels.param_utils import mc_select_diffmah_params
 from diffsky.mass_functions.mc_subs import generate_subhalopop
 from diffstar.defaults import T_TABLE_MIN
 from diffstar.utils import cumulative_mstar_formed_galpop
-from diffstarpop import mc_diffstarpop_tpeak as mcdsp
+from diffstarpop import mc_diffstarpop_tpeak_sepms_satfrac as mcdsp
 from diffstarpop.defaults import DEFAULT_DIFFSTARPOP_PARAMS
 from diffstarpop.param_utils import mc_select_diffstar_params
 from dsps.cosmology.flat_wcdm import _age_at_z_kern, age_at_z0
@@ -147,6 +147,7 @@ def mc_galpop_synthetic_subs(
         DEFAULT_DIFFSTARPOP_PARAMS,
         mah_params,
         logmp0,
+        upid,
         lgmu_t_inf,
         lgmhost_at_t_inf,
         t_obs - mah_params.t_peak,
