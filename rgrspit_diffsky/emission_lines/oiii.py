@@ -10,7 +10,7 @@ OIII_LOGNOISE = 0.19
 def get_observed_OIII(
     lum, ran_key, *, rescaling_factor=OIII_RESCALING, noise=OIII_LOGNOISE
 ):
-    """Calculate observed [OIII] luminosity with empirical correction
+    """Calculate observed [OIII] luminosity with empirical correction.
 
     Parameters
     ----------
@@ -26,6 +26,10 @@ def get_observed_OIII(
     Returns
     -------
     lum_OIII_obs : array, shape (n,)
+
+    Notes
+    -----
+    Credit to Wei Liu for the calibration of the empirical correction.
 
     """
     loglum = jnp.log10(lum * rescaling_factor)

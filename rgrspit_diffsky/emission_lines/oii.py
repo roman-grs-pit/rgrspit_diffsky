@@ -29,6 +29,10 @@ def get_observed_OII(
     -------
     lum_oii_obs : array, shape (n,)
 
+    Notes
+    -----
+    Credit to Wei Liu for the calibration of the empirical correction.
+
     """
     loglum = jnp.log10(lum_oii * rescaling_factor)
     loglum_obs = jran.normal(ran_key, shape=lum_oii.shape) * noise + loglum
@@ -56,6 +60,7 @@ def sfr_to_OII3727_K98(sfr):
     -------
     l_oii : ndarray, shape (n, )
         OII luminosity at 3727 in units of erg/s
+
     """
     if np.any(sfr < 0):
         raise ValueError("Star formation rate cannot be negative")
