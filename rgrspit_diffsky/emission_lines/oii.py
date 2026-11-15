@@ -1,8 +1,39 @@
 """Module implementing scaling relations for OII emission."""
 
 import numpy as np  # type: ignore
+from jax import numpy as jnp
+from jax import random as jran
 
 K98_OII_COEF = 1.4e-41
+OII_RESCALING = 1.78
+OII_LOGNOISE = 0.11
+
+
+def get_observed_OII(
+    lum_oii, ran_key, *, rescaling_factor=OII_RESCALING, noise=OII_LOGNOISE
+):
+    """Calculate observed [OII] luminosity with empirical correction
+
+    Parameters
+    ----------
+    lum_oii : array, shape (n, )
+
+    ran_key : jax.random.seed()
+
+    rescaling_factor : float
+
+    noise : float
+        Lognormal noise added to the rescaled line luminosity
+
+    Returns
+    -------
+    lum_oii_obs : array, shape (n,)
+
+    """
+    loglum = jnp.log10(lum_oii * rescaling_factor)
+    loglum_obs = jran.normal(ran_key, shape=lum_oii.shape) * noise + loglum
+    lum_oii_obs = 10**loglum_obs
+    return lum_oii_obs
 
 
 # pylint: disable=invalid-name

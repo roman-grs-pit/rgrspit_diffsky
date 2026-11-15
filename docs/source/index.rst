@@ -19,6 +19,7 @@ the Roman GRS PIT.
    :caption: Contents:
 
    installation.rst
+   demo_grspit_emline_corrections.ipynb
 
 .. toctree::
     :maxdepth: 1
