@@ -19,7 +19,6 @@ the Roman GRS PIT.
    :caption: Contents:
 
    installation.rst
-   demos.rst
 
 .. toctree::
     :maxdepth: 1
